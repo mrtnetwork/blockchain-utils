@@ -15,6 +15,7 @@ use crate::zk::sapling::constants::{
     value_commitment_value_generator,
 };
 use crate::zk::sapling::windows::{bytes_le_to_bits, fixed_base_mul_le_bits, u64_to_bits_le};
+use alloc::vec;
 use alloc::vec::Vec;
 
 fn map_hash_err(e: crate::hash::HashError) -> CurveError {

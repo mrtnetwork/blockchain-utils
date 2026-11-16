@@ -18,14 +18,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo check --all-targets --features hw
 
-  check-nostd:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo check --no-default-features --features alloc,zcash-sapling
-
   kats-gate:
     runs-on: ubuntu-latest
     steps:

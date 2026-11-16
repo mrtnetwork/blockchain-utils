@@ -5,6 +5,7 @@
 
 use crate::curve::bls::Scalar;
 use crate::zk::groth16::{ConstraintBls, LinearCombinationBls, R1csBls};
+use alloc::vec;
 use alloc::vec::Vec;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

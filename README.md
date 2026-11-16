@@ -2,7 +2,7 @@
 
 Pure `no_std`, zero-dependency cryptographic and blockchain utilities with constant-time primitives.
 
-Core library has **zero required dependencies**. Optional `wasm-bindgen` is only pulled in under the `wasm` feature. Suitable for bare metal, `wasm32-unknown-unknown`, native hosts, Dart FFI (`cdylib`), and WASM builds.
+Core library has **zero required dependencies**. Optional `wasm-bindgen` is only pulled in under the `wasm` feature. Suitable for bare metal, `wasm32-unknown-unknown`, native hosts, native FFI (`cdylib`), and WASM builds.
 
 ## Features
 
@@ -13,10 +13,10 @@ Core library has **zero required dependencies**. Optional `wasm-bindgen` is only
 - Signatures: ECDSA, Schnorr/BIP-340, EdDSA, BLS, RedDSA, ML-DSA, Schnorrkel
 - Threshold / multisig: BIP-327 MuSig2, FROST (RFC 9591, secp256k1 + Ed25519), DKLS23
 - AEAD / ciphers: AES-GCM, ChaCha20-Poly1305, XSalsa20-Poly1305, NaCl `crypto_box`, AES-ECB/CBC/CTR
-- Zero-knowledge: Groth16 verifier (BLS12-381), Orchard Halo2 port, Solana confidential-transfer ZK (Twisted ElGamal + Bulletproofs), circomlib-compatible Poseidon-BN254, Zcash Sapling/Orchard/IncrementalMerkle
+- Zero-knowledge: Groth16 verifier (BLS12-381), Orchard Halo2 implementation, Solana confidential-transfer ZK (Twisted ElGamal + Bulletproofs), circomlib-compatible Poseidon-BN254, Zcash Sapling/Orchard/IncrementalMerkle
 - Monero: Bulletproofs+ prove/verify and output scanning
 - Hardware wallets: APDU / Trezor / UR / PSBT codecs + unified `HardwareWallet` interface (transport injected by `ffi`/`wasm`, nothing in `hw` touches hardware)
-- C ABI exports for Dart FFI (`ffi` feature) and `wasm-bindgen` exports for web (`wasm` feature)
+- C ABI exports for native FFI (`ffi` feature) and `wasm-bindgen` exports for web (`wasm` feature)
 
 ## Installation
 
@@ -90,10 +90,10 @@ Feature-gated modules (check `Cargo.toml` / `src/lib.rs`):
 |------|---------|-------------|
 | `std` | on | `std` support (implies `alloc`) |
 | `alloc` | on (via `std`) | Allocation-requiring APIs |
-| `ffi` | on | C ABI exports for Dart/native (`.so`/`cdylib`) |
-| `wasm` | off | `wasm-bindgen` exports for Dart web connector |
+| `ffi` | on | C ABI exports for native (`.so`/`cdylib`) |
+| `wasm` | off | `wasm-bindgen` exports for web |
 | `groth16` | on | Groth16 verifier (BLS12-381) |
-| `groth16-prover` | off (via `zcash-sapling`) | Groth16 prover machinery |
+| `groth16-prover` | on (via `zcash-full`) | Groth16 prover machinery |
 | `poseidon-bn254` | on | circomlib-compatible Poseidon over BN254 Fr (~404 KB tables) |
 | `multicore` | on | Parallel MSM/FFT for native proving (OS threads, not for wasm32) |
 | `solana-zk` | on | Solana confidential-transfer ZK (Token-2022 compatible) |
@@ -136,7 +136,7 @@ cargo test --no-default-features --features alloc
 cargo test --all-features
 ```
 
-Known-answer / vector tests live in `tests/` (`*_kat.rs`, `tests/vectors/`), plus differential tests (`diff_self.rs`, `diff_openssl.rs`) and benches in `tests/*bench*.rs`. CI helpers: `scripts/ci_kats.sh`, `scripts/ci_p0.sh`.
+Known-answer / vector tests live in `tests/kats/` (`tests/vectors/`), plus differential tests (`tests/diff/`), HW codec tests (`tests/hw/`), threshold tests (`tests/dkls23/`), and Groth16 compat tests (`tests/benches/`). CI: `.github/workflows/ci.yml`, helpers `scripts/ci_kats.sh`, `scripts/ci_p0.sh`.
 
 Release profile uses LTO + `strip = true`; debug symbols are archived per release for symbolication.
 
