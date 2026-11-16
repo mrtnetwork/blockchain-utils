@@ -1,0 +1,34 @@
+[package]
+name = "blockchain-utils-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+blockchain-utils = { path = "..", default-features = false, features = ["hw", "std", "ffi"] }
+
+[[bin]]
+name = "fuzz_apdu"
+path = "fuzz_targets/fuzz_apdu.rs"
+
+[[bin]]
+name = "fuzz_trezor"
+path = "fuzz_targets/fuzz_trezor.rs"
+
+[[bin]]
+name = "fuzz_ur"
+path = "fuzz_targets/fuzz_ur.rs"
+
+[[bin]]
+name = "fuzz_hid"
+path = "fuzz_targets/fuzz_hid.rs"
+
+[[bin]]
+name = "fuzz_noise_m2"
+path = "fuzz_targets/fuzz_noise_m2.rs"
+
+[workspace]

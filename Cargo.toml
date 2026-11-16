@@ -1,0 +1,102 @@
+[package]
+name = "blockchain-utils"
+version = "0.1.0"
+edition = "2021"
+authors = ["blockchain-utils contributors"]
+description = "Zero-dependency cryptographic and blockchain utilities"
+license = "MIT"
+repository = ""
+
+keywords = ["crypto", "blockchain", "no_std", "wasm", "constant-time"]
+categories = ["cryptography", "no-std", "wasm"]
+
+[lib]
+# `rlib` always. `cdylib` for native `.so` (needs `std`, e.g. `--features ffi`).
+crate-type = ["rlib", "cdylib"]
+
+# The table generator needs Sapling circuits + Merkle bridge (see its header).
+[[example]]
+name = "gen_pedersen_tables"
+required-features = ["zcash-sapling"]
+
+# BN254 Poseidon tables need only the always-compiled BN254 scalar field.
+[[example]]
+name = "gen_poseidon_bn254_tables"
+
+# Solana ZK helpers need the `solana-zk` feature (default-on).
+[[example]]
+name = "gen_solana_bsgs_table"
+required-features = ["solana-zk"]
+
+[[example]]
+name = "solana_zk_bsgs_bench"
+required-features = ["solana-zk"]
+
+[features]
+# Host/default builds use `std`. Pure `no_std`: `--no-default-features --features alloc`.
+default = ["std", "groth16", "ffi", "monero", "zcash-full", "multicore", "poseidon-bn254", "solana-zk"]
+alloc = []
+# Optional std (required for wasm-bindgen builds)
+std = ["alloc"]
+# C ABI exports for native FFI (no impact on core crypto modules)
+ffi = ["std"]
+# Monero: Bulletproofs+ prove/verify and output scanning.
+monero = ["alloc"]
+# wasm-bindgen exports for web (`connector::wasm`).
+# Zero third-party JS glue: plain slices/Vec<u8>/u32/bool/String across the boundary.
+wasm = ["std", "dep:wasm-bindgen", "wasm-bindgen/std"]
+# Groth16 verifier (BLS12-381); prover later via groth16-prover
+groth16 = ["alloc"]
+groth16-prover = ["groth16"]
+# circomlib-compatible Poseidon over BN254 Fr. Opt-in only.
+poseidon-bn254 = ["alloc"]
+# Parallel MSM/FFT for native prove (OS threads). Not for wasm32; enable: --features multicore
+multicore = ["std"]
+
+# Solana confidential-transfer ZK (Twisted ElGamal + Bulletproofs +
+# Sigma proofs, Token-2022 compatible).
+solana-zk = ["alloc"]
+# Standalone Orchard Halo2 implementation.
+orchard-halo2 = ["alloc"]
+# --- Zcash family ---
+# Sapling prove/verify (Groth16 prover machinery + connector codecs).
+zcash-sapling = ["groth16-prover"]
+# Orchard prove/verify (orchard_halo2 circuits + connector codecs).
+zcash-halo2 = ["orchard-halo2"]
+# Frontier Merkle contexts (Sapling/Orchard/Ironwood wallet trees).
+# Standalone: needs alloc only (no prover, no Halo2).
+zcash-incrementalmerkle = ["alloc"]
+# Everything Zcash.
+zcash-full = ["zcash-sapling", "zcash-halo2", "zcash-incrementalmerkle"]
+# Hardware-wallet message codecs (APDU / Trezor proto / UR / PSBT) + unified
+# `HardwareWallet` interface. Pure `no_std` + `alloc`, zero dependencies.
+hw = ["alloc"]
+
+[dependencies]
+# Core: zero required deps. Optional only under `wasm`.
+wasm-bindgen = { version = "=0.2.92", optional = true, default-features = false }
+
+[dev-dependencies]
+# Noise_XX interop tests only. Never linked into the library.
+snow = "0.10.0"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+panic = "abort"
+strip = true
+
+[profile.bench]
+lto = true
+codegen-units = 1
+
+[profile.fast]
+inherits = "release"
+lto = false
+codegen-units = 4
+opt-level = 3
+

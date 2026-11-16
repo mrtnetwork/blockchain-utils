@@ -1,0 +1,132 @@
+//! Domain-separation tags for the DKLs23 oracles.
+//!
+//! Every Fiat–Shamir / KDF / commitment oracle in this module uses one of
+//! these tags. The byte strings match the interoperable deployments so
+//! that transcripts cross-check byte-for-byte across implementations;
+//! the surrounding logic is original to this crate.
+//!
+//! Tags are versioned (`.../v1`, `.../v2`) to allow explicit, auditable
+//! migration. [`ALL_TAGS`] must list every tag so the uniqueness test
+//! stays effective.
+
+/// Commitment hash oracle.
+pub const TAG_COMMITMENT: &[u8] = b"dkls23/commitment/v1";
+
+/// DLog Schnorr transcript oracle.
+pub const TAG_DLOG_PROOF: &[u8] = b"dkls23/proofs/dlog/fischlin/v1";
+/// DLog proof commitment oracle.
+pub const TAG_DLOG_COMMITMENT: &[u8] = b"dkls23/proofs/dlog/commitment/v1";
+/// Multiplication-message proof oracle.
+pub const TAG_ENCPROOF_FS: &[u8] = b"dkls23/proofs/enc/fs/v1";
+
+/// Zero-share fragment derivation oracle.
+pub const TAG_ZERO_SHARE_FRAGMENT: &[u8] = b"dkls23/zero-share/fragment/v1";
+/// Zero-share seed-context oracle (protocol + session ids + direction).
+pub const TAG_ZERO_SHARE_SEED_CONTEXT: &[u8] = b"dkls23/zero-share/seed-context/v1";
+
+/// Base-OT hash-to-point oracle.
+pub const TAG_OT_BASE_H: &[u8] = b"dkls23/ot/base/h/v2";
+/// Base-OT message-derivation oracle.
+pub const TAG_OT_BASE_MSG: &[u8] = b"dkls23/ot/base/msg/v1";
+
+/// OT-extension PRG oracle.
+pub const TAG_OTE_PRG: &[u8] = b"dkls23/ot/extension/prg/v1";
+/// OT-extension session-id oracle (caller session id + receiver nonce).
+pub const TAG_OTE_SESSION: &[u8] = b"dkls23/ot/extension/session/v1";
+/// OT-extension consistency-check oracle.
+pub const TAG_OTE_CHI: &[u8] = b"dkls23/ot/extension/chi/v1";
+/// OT-extension final-randomization oracle.
+pub const TAG_OTE_RANDOMIZE: &[u8] = b"dkls23/ot/extension/randomize/v1";
+
+/// Multiplication gadget oracle.
+pub const TAG_MUL_GADGET: &[u8] = b"dkls23/mul/gadget/v1";
+/// Multiplication receiver-transcript oracle.
+pub const TAG_MUL_TRANSCRIPT_RECEIVER: &[u8] = b"dkls23/mul/transcript/receiver/v1";
+/// Multiplication full-transcript oracle.
+pub const TAG_MUL_TRANSCRIPT: &[u8] = b"dkls23/mul/transcript/v1";
+/// Multiplication chi-tilde oracle.
+pub const TAG_MUL_CHI_TILDE: &[u8] = b"dkls23/mul/chi-tilde/v2";
+/// Multiplication chi-hat oracle.
+pub const TAG_MUL_CHI_HAT: &[u8] = b"dkls23/mul/chi-hat/v2";
+/// Multiplication verify oracle.
+pub const TAG_MUL_VERIFY: &[u8] = b"dkls23/mul/verify/v1";
+
+/// Signing session-binding oracle.
+pub const TAG_SIGN_SESSION_BINDING: &[u8] = b"dkls23/sign/session-binding/v1";
+/// Signing multiplication session-id oracle.
+pub const TAG_SIGN_MUL_SESSION: &[u8] = b"dkls23/sign/mul-session/v1";
+/// Signing zero-share session-id oracle.
+pub const TAG_SIGN_ZERO_SESSION: &[u8] = b"dkls23/sign/zero-session/v1";
+
+/// Refresh session-chaining oracle.
+pub const TAG_REFRESH_SESSION: &[u8] = b"dkls23/refresh/session/v1";
+/// Full-refresh multiplication session-id oracle.
+pub const TAG_REFRESH_MUL_SESSION: &[u8] = b"dkls23/refresh/mul-session/v1";
+/// Share-repair mask oracle.
+pub const TAG_REPAIR_MASK: &[u8] = b"dkls23/repair/mask/v1";
+/// Pair-setup oracle (both public gadgets).
+pub const TAG_SIGN_PAIR_SETUP: &[u8] = b"dkls23/sign/pair-setup/v1";
+
+/// Fast-refresh re-randomization oracles.
+pub const TAG_REFRESH_FAST_R0: &[u8] = b"dkls23/refresh/fast/r0/v1";
+/// Fast-refresh re-randomization oracles.
+pub const TAG_REFRESH_FAST_R1: &[u8] = b"dkls23/refresh/fast/r1/v1";
+/// Fast-refresh re-randomization oracles.
+pub const TAG_REFRESH_FAST_B: &[u8] = b"dkls23/refresh/fast/b/v1";
+
+/// Registry of every tag. Add new tags here so the uniqueness test
+/// keeps covering them.
+pub const ALL_TAGS: &[&[u8]] = &[
+    TAG_COMMITMENT,
+    TAG_DLOG_PROOF,
+    TAG_DLOG_COMMITMENT,
+    TAG_ENCPROOF_FS,
+    TAG_ZERO_SHARE_FRAGMENT,
+    TAG_ZERO_SHARE_SEED_CONTEXT,
+    TAG_OT_BASE_H,
+    TAG_OT_BASE_MSG,
+    TAG_OTE_PRG,
+    TAG_OTE_SESSION,
+    TAG_OTE_CHI,
+    TAG_OTE_RANDOMIZE,
+    TAG_MUL_GADGET,
+    TAG_MUL_TRANSCRIPT_RECEIVER,
+    TAG_MUL_TRANSCRIPT,
+    TAG_MUL_CHI_TILDE,
+    TAG_MUL_CHI_HAT,
+    TAG_MUL_VERIFY,
+    TAG_SIGN_SESSION_BINDING,
+    TAG_SIGN_MUL_SESSION,
+    TAG_SIGN_ZERO_SESSION,
+    TAG_REFRESH_SESSION,
+    TAG_REFRESH_MUL_SESSION,
+    TAG_SIGN_PAIR_SETUP,
+    TAG_REPAIR_MASK,
+    TAG_REFRESH_FAST_R0,
+    TAG_REFRESH_FAST_R1,
+    TAG_REFRESH_FAST_B,
+];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use alloc::collections::BTreeSet;
+
+    #[test]
+    fn tags_are_unique() {
+        let mut seen = BTreeSet::new();
+        for tag in ALL_TAGS {
+            assert!(seen.insert(*tag), "duplicate oracle tag");
+        }
+        assert_eq!(seen.len(), ALL_TAGS.len());
+    }
+
+    #[test]
+    fn tags_are_versioned() {
+        for tag in ALL_TAGS {
+            let s = core::str::from_utf8(tag).expect("tags are ascii");
+            assert!(s.starts_with("dkls23/"), "tag scope: {s}");
+            assert!(s.rsplit('/').next().unwrap_or("").starts_with('v'), "tag version: {s}");
+        }
+    }
+}

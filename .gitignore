@@ -1,0 +1,24 @@
+# Build output (regenerable)
+**/target/
+# Local test/bench logs
+/.logs/
+# Backup / snapshot archives
+*.zip
+# Fuzz run outputs (harnesses in fuzz/fuzz_targets + fuzz/Cargo.toml stay tracked)
+fuzz/artifacts/
+fuzz/corpus/
+# Library convention: don't pin transitive deps for downstream users
+Cargo.lock
+# Local env / secrets
+.env
+# Coverage / profiling
+*.profraw
+*.profdata
+lcov.info
+coverage/
+# Editor / OS noise
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
