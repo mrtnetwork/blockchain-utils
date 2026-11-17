@@ -24,6 +24,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+      - name: Install OpenSSL CLI
+        # tests/diff/diff_openssl.rs shells out to `openssl` and skips
+        # cleanly when it is not on PATH. Install explicitly so the
+        # differential runs instead of silently skipping.
+        run: sudo apt-get update && sudo apt-get install -y openssl && openssl version
       - run: bash scripts/ci_kats.sh
 
   test-all:
@@ -34,10 +39,16 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: lib tests
-        # spend_self_params_depth1 does a full self-params Groth16
-        # setup+prove+verify (~56k constraints) which takes 30+ min in
-        # debug CI. Run it locally with --release instead.
-        run: cargo test --lib --features hw -- --skip spend_self_params_depth1
+        # Spend depth-1 self-params prove tests do a full Groth16
+        # setup+prove+verify (~56k constraints) which takes 30+ min each in
+        # debug CI. Run them locally with --release instead.
+        # (--skip matches substrings, so one entry covers both
+        # prover.rs and circuit_spend.rs copies of the same name.)
+        run: >-
+          cargo test --lib --features hw --
+          --skip spend_self_params_depth1
+          --skip prove_spend_synthetic_depth1_roundtrip
+          --skip create_and_verify_spend_tx_depth1
       - name: kats
         run: cargo test --test kats --features hw
       - name: diff
