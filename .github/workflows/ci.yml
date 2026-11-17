@@ -34,7 +34,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: lib tests
-        run: cargo test --lib --features hw
+        # spend_self_params_depth1 does a full self-params Groth16
+        # setup+prove+verify (~56k constraints) which takes 30+ min in
+        # debug CI. Run it locally with --release instead.
+        run: cargo test --lib --features hw -- --skip spend_self_params_depth1
       - name: kats
         run: cargo test --test kats --features hw
       - name: diff
